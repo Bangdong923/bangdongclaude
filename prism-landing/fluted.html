@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PRISM Fluted Glass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: wordmark row on top; below it one rounded slab of ribbed glass with drifting colour behind it.
+   The slab is split into four tall panels, one per menu. Hovering a panel widens it and veils the others. */
+:root{
+  --wall:#f5f5f7;
+  --ink:#111114;
+  --mute:#6b6b72;
+  --soft:#a3a3aa;
+  --line:rgba(0,0,0,.08);
+  --rib:rgba(255,255,255,.55);
+  --veil:rgba(245,245,247,.55);
+  --c1:#ff6a3d; --c2:#34c759; --c3:#0fb5c9; --c4:#6e5cf0;
+  --f-display:"Inter Tight",-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --f-text:"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--wall)}
+body{margin:0;color:var(--ink);font-family:var(--f-text);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:1240px;margin-inline:auto;padding-left:max(clamp(16px,4vw,44px),env(safe-area-inset-left,0px));padding-right:max(clamp(16px,4vw,44px),env(safe-area-inset-right,0px))}
+
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:20px}
+.logo{display:flex;align-items:center;gap:9px;font-family:var(--f-display);font-weight:600;font-size:14px;letter-spacing:.16em;color:var(--ink);text-decoration:none}
+.logo i{display:block;width:18px;height:18px;border-radius:5px;background:repeating-linear-gradient(90deg,var(--c1) 0 3px,var(--c2) 3px 6px,var(--c3) 6px 9px,var(--c4) 9px 12px);opacity:.9}
+.chip{font-family:var(--f-display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:5px 11px}
+
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px 48px;padding-block:clamp(28px,7vh,72px) clamp(24px,4vh,40px)}
+h1{margin:0;font-family:var(--f-display);font-weight:600;font-size:clamp(76px,12vw,160px);line-height:.86;letter-spacing:-.055em;animation:rise 1.6s .15s cubic-bezier(.2,.7,.2,1) both}
+.side{display:grid;gap:10px;max-width:24em;padding-bottom:.6em;animation:rise 1.6s .4s cubic-bezier(.2,.7,.2,1) both}
+.acro{margin:0;font-family:var(--f-display);font-size:14px;color:var(--soft)}
+.acro b{color:var(--ink);font-weight:500}
+.lede{margin:0;font-size:clamp(17px,1.6vw,20px);line-height:1.5;color:var(--mute);word-break:keep-all;text-wrap:balance}
+.lede strong{color:var(--ink);font-weight:500}
+
+.slab{position:relative;height:clamp(380px,54vh,540px);border-radius:28px;overflow:hidden;isolation:isolate;background:linear-gradient(120deg,#ffe2d6,#eaffd9 35%,#d6f6ff 65%,#e6e0ff);box-shadow:0 30px 60px -30px rgba(40,40,80,.25);animation:rise 1.6s .55s cubic-bezier(.2,.7,.2,1) both}
+#glass{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:-1}
+.panels{position:absolute;inset:0;display:flex;margin:0;padding:0;list-style:none}
+.panels>li{flex:1 1 0;min-width:0;display:flex;transition:flex-grow .8s cubic-bezier(.2,.7,.2,1)}
+.panels>li+li{border-left:1px solid var(--rib)}
+.panels:hover>li:hover,.panels>li:focus-within{flex-grow:1.9}
+.panel{position:relative;flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;padding:26px 26px 28px;color:var(--ink);text-decoration:none;min-width:0;overflow:hidden}
+.panel::before{content:"";position:absolute;inset:0;z-index:0;background:var(--veil);opacity:0;transition:opacity .6s ease;pointer-events:none}
+.panel::after{content:"";position:absolute;left:0;right:0;bottom:0;height:62%;z-index:0;background:linear-gradient(to top,rgba(255,255,255,.62),rgba(255,255,255,0));pointer-events:none}
+.panels:hover>li:not(:hover) .panel::before{opacity:1}
+.panel>*{position:relative;z-index:1}
+.panel:focus-visible{outline:2px solid var(--ink);outline-offset:-6px;border-radius:22px}
+.go{position:absolute;top:22px;right:22px;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.7);font-family:var(--f-display);font-size:16px;transition:transform .4s ease,background-color .3s ease,color .3s ease}
+.panel:hover .go,.panel:focus-visible .go{background:var(--ink);color:#fff;transform:rotate(-45deg)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--c);margin-bottom:10px;box-shadow:0 0 0 4px rgba(255,255,255,.6)}
+.name{font-size:clamp(20px,1.9vw,26px);font-weight:700;letter-spacing:-.025em;line-height:1.25;word-break:keep-all}
+.en{font-family:var(--f-display);font-size:13px;color:var(--mute)}
+.desc{font-size:14px;color:var(--mute);line-height:1.5;word-break:keep-all;max-height:0;opacity:0;transition:max-height .6s ease,opacity .5s ease,margin .6s ease}
+.panel:hover .desc,.panel:focus-visible .desc{max-height:4.5em;opacity:1;margin-top:8px}
+
+.hint{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-block:18px 48px;font-size:13px;color:var(--soft)}
+.replay{appearance:none;background:transparent;border:1px solid var(--line);color:var(--mute);font:500 13px/1 var(--f-text);padding:9px 15px;border-radius:999px;cursor:pointer}
+.replay:hover{color:var(--ink);border-color:rgba(0,0,0,.2)}
+.replay:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;padding-block:20px 26px;border-top:1px solid var(--line);font-family:var(--f-display);font-size:12px;color:var(--soft)}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);width:max-content;padding:11px 18px;border-radius:999px;background:var(--ink);color:#fff;font-size:14px;text-align:center;animation:toast .35s cubic-bezier(.2,.7,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(16px);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+@keyframes toast{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media (max-width:760px){
+  .chip{display:none}
+  .slab{height:auto}
+  .panels{position:relative;flex-direction:column}
+  .panels>li+li{border-left:0;border-top:1px solid var(--rib)}
+  .panel{min-height:118px;padding:20px 72px 20px 20px;justify-content:center}
+  .go{position:absolute;top:50%;right:18px;margin-top:-17px;width:34px;height:34px}
+  .panel::after{top:0;height:auto;background:linear-gradient(to right,rgba(255,255,255,.66),rgba(255,255,255,.25))}
+  .desc{max-height:none;opacity:1;margin-top:4px;font-size:13px}
+  .panels:hover>li:not(:hover) .panel::before{opacity:0}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap bar">
+  <a class="logo" href="#" aria-label="PRISM 홈"><i aria-hidden="true"></i>PRISM</a>
+  <span class="chip">Internal</span>
+</div>
+
+<main>
+  <div class="wrap head">
+    <h1>PRISM</h1>
+    <div class="side">
+      <p class="acro"><b>PR</b>oduct <b>I</b>nformation <b>S</b>ystem <b>M</b>anagement</p>
+      <p class="lede">같은 제품 정보도, <strong>보는 곳에 맞게 선명하게.</strong></p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <nav class="slab" aria-label="PRISM 메뉴">
+      <canvas id="glass" aria-hidden="true"></canvas>
+      <ul class="panels">
+        <li><a class="panel" href="#shortcuts" style="--c:var(--c1)" data-to="바로가기로">
+          <span class="go" aria-hidden="true">→</span>
+          <span class="dot"></span><span class="name">바로가기</span><span class="en">Shortcuts</span>
+          <span class="desc">자주 쓰는 시스템과 문서로 한 번에 이동</span>
+        </a></li>
+        <li><a class="panel" href="#products" style="--c:var(--c2)" data-to="제품현황으로">
+          <span class="go" aria-hidden="true">→</span>
+          <span class="dot"></span><span class="name">제품현황</span><span class="en">Products</span>
+          <span class="desc">제품별 상태, 사양, 일정을 한눈에</span>
+        </a></li>
+        <li><a class="panel" href="#ideas" style="--c:var(--c3)" data-to="아이디어게시판으로">
+          <span class="go" aria-hidden="true">→</span>
+          <span class="dot"></span><span class="name">아이디어게시판</span><span class="en">Ideas</span>
+          <span class="desc">제안하고, 모으고, 함께 다듬기</span>
+        </a></li>
+        <li><a class="panel" href="#recipients" style="--c:var(--c4)" data-to="수신처관리로">
+          <span class="go" aria-hidden="true">→</span>
+          <span class="dot"></span><span class="name">수신처관리</span><span class="en">Recipients</span>
+          <span class="desc">배포와 알림을 받을 사람, 그룹 관리</span>
+        </a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="wrap hint">
+    <button class="replay" id="replay" type="button">다시 재생</button>
+    <span>패널에 올리면 그 메뉴가 넓어져요.</span>
+  </div>
+</main>
+
+<div class="wrap"><footer class="foot"><span>PRISM · PRoduct Information System Management</span><span>랜딩 페이지 샘플 · 메뉴 링크는 연결 전</span></footer></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+  const toast = document.getElementById('toast');
+  let tt = 0;
+  document.querySelectorAll('.panel').forEach(el => el.addEventListener('click', e => {
+    // 샘플용: href가 '#...'인 동안만 이동을 막습니다. 실제 주소로 바꾸면 그대로 이동합니다.
+    if ((el.getAttribute('href') || '').startsWith('#')) {
+      e.preventDefault();
+      toast.textContent = `${el.dataset.to} 이동합니다 · 샘플이라 링크는 아직 비어 있어요`;
+      toast.hidden = false; toast.style.animation = 'none'; void toast.offsetWidth; toast.style.animation = '';
+      clearTimeout(tt); tt = setTimeout(() => { toast.hidden = true; }, 2800);
+    }
+  }));
+
+  const slab = document.querySelector('.slab');
+  const canvas = document.getElementById('glass');
+  const reduceMq = matchMedia('(prefers-reduced-motion: reduce)');
+  const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
+  if (!gl) { canvas.remove(); return; }
+
+  const FS = `
+precision highp float;
+uniform vec2 uRes; uniform float uTime, uOpen, uRib, uAspect;
+vec3 hsv2rgb(vec3 c){ vec3 p = abs(fract(c.xxx + vec3(0.,2./3.,1./3.))*6.-3.); return c.z*mix(vec3(1.), clamp(p-1.,0.,1.), c.y); }
+vec3 scene(vec2 uv){
+  vec3 col = vec3(.965,.965,.975);
+  float t = uTime * .12;
+  for (int i = 0; i < 5; i++){
+    float fi = float(i);
+    vec2 c = vec2((.1 + .2*fi)*uAspect + .16*uAspect*sin(t*(.7+.13*fi) + fi*1.7),
+                  .5 + .34*sin(t*(.9+.11*fi) + fi*2.3));
+    float r = .34 + .08*sin(t + fi);
+    vec2 d = uv - c;
+    float g = exp(-dot(d,d)/(r*r));
+    col = mix(col, hsv2rgb(vec3(fi/5.*.82, .7, 1.)), g*.88*uOpen);
+  }
+  return col;
+}
+void main(){
+  vec2 fc = gl_FragCoord.xy;
+  float rib = uRib;
+  float fx = fract(fc.x / rib), o = fx - .5;
+  float k = rib * mix(0., 2.6, uOpen);
+  float y = (uRes.y - fc.y) / uRes.y;
+  vec3 col;
+  col.r = scene(vec2((fc.x - o*k*1.00)/uRes.y, y)).r;
+  col.g = scene(vec2((fc.x - o*k*1.12)/uRes.y, y)).g;
+  col.b = scene(vec2((fc.x - o*k*1.24)/uRes.y, y)).b;
+  float hi = smoothstep(.02,.14,fx) * smoothstep(.34,.14,fx);
+  float sh = smoothstep(.72,1.,fx);
+  col += hi * .12 * uOpen;
+  col -= sh * .05 * uOpen;
+  float g = fract(sin(dot(fc, vec2(12.9898,78.233))) * 43758.5453);
+  col += (g - .5) * (3. / 255.);
+  gl_FragColor = vec4(col, 1.);
+}`;
+  const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+  function sh(t, s) { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; }
+  const prog = gl.createProgram();
+  try {
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog); if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error('link');
+  } catch (e) { canvas.remove(); return; }
+  gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const U = n => gl.getUniformLocation(prog, n);
+  const uRes = U('uRes'), uTime = U('uTime'), uOpen = U('uOpen'), uRib = U('uRib'), uAspect = U('uAspect');
+
+  function resize() {
+    const r = slab.getBoundingClientRect(), s = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.round(r.width * s)); canvas.height = Math.max(1, Math.round(r.height * s));
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uAspect, canvas.width / canvas.height);
+    gl.uniform1f(uRib, (r.width < 500 ? 16 : 22) * s);
+  }
+  let t0 = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const reduce = reduceMq.matches;
+    const t = reduce ? 30 : (now - t0) / 1000;
+    gl.uniform1f(uTime, t + 8);
+    gl.uniform1f(uOpen, reduce ? 1 : ease(Math.min(1, Math.max(0, (t - .6) / 2.2))));
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  document.getElementById('replay').addEventListener('click', () => {
+    t0 = performance.now();
+    document.querySelectorAll('h1,.side,.slab').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+  });
+  resize();
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(slab); else addEventListener('resize', resize);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

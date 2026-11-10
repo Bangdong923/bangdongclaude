@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PRISM Ribbon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: clean white page. A silk ribbon woven from fine spectral lines draws itself across the middle
+   and slowly twists. Wordmark top-left; the menu is a four-column ruled index along the bottom. */
+:root{
+  --white:#ffffff;
+  --ink:#0e0e12;
+  --mute:#64646c;
+  --soft:#a0a0a8;
+  --rule:rgba(14,14,18,.1);
+  --c1:#ff6a3d; --c2:#34c759; --c3:#0fb5c9; --c4:#6e5cf0;
+  --f-display:"Manrope",-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --f-text:"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--white)}
+body{margin:0;color:var(--ink);font-family:var(--f-text);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:1240px;margin-inline:auto;padding-left:max(clamp(16px,4vw,44px),env(safe-area-inset-left,0px));padding-right:max(clamp(16px,4vw,44px),env(safe-area-inset-right,0px))}
+
+.hero{position:relative;isolation:isolate;overflow:hidden}
+#ribbon{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:-1;pointer-events:none}
+
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:22px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:.12em;color:var(--ink);text-decoration:none}
+.logo svg{width:22px;height:14px;display:block}
+.chip{font-family:var(--f-display);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);border:1px solid var(--rule);border-radius:999px;padding:5px 11px}
+
+.head{display:grid;gap:16px;padding-block:clamp(36px,8vh,88px) 0}
+.acro{margin:0;font-family:var(--f-display);font-size:14px;font-weight:500;color:var(--soft);animation:rise 1.4s .2s cubic-bezier(.2,.7,.2,1) both}
+.acro b{color:var(--ink);font-weight:700}
+h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(72px,11.5vw,148px);line-height:.9;letter-spacing:-.06em;animation:rise 1.8s .3s cubic-bezier(.2,.7,.2,1) both}
+.lede{margin:0;font-size:clamp(17px,1.7vw,21px);line-height:1.5;color:var(--mute);max-width:24em;word-break:keep-all;text-wrap:balance;animation:rise 1.6s .5s cubic-bezier(.2,.7,.2,1) both}
+.lede strong{color:var(--ink);font-weight:500}
+
+.space{height:clamp(200px,30vh,300px)}
+
+.index{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule)}
+.index>li{min-width:0;animation:rise 1.4s cubic-bezier(.2,.7,.2,1) both}
+.index>li:nth-child(1){animation-delay:1.6s}.index>li:nth-child(2){animation-delay:1.7s}.index>li:nth-child(3){animation-delay:1.8s}.index>li:nth-child(4){animation-delay:1.9s}
+.index>li+li .item{border-left:1px solid var(--rule)}
+.item{position:relative;display:grid;gap:4px;height:100%;padding:26px 24px 26px;color:var(--ink);text-decoration:none;background:rgba(255,255,255,.72);transition:background-color .4s ease}
+.item:hover,.item:focus-visible{background:rgba(255,255,255,.92)}
+.item:focus-visible{outline:2px solid var(--c);outline-offset:-2px}
+.bar-c{display:block;width:28px;height:3px;border-radius:3px;background:var(--c);margin-bottom:14px;transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.item:hover .bar-c,.item:focus-visible .bar-c{width:100%}
+.name{font-size:clamp(19px,1.7vw,22px);font-weight:700;letter-spacing:-.02em;line-height:1.3;word-break:keep-all}
+.en{font-family:var(--f-display);font-size:13px;font-weight:500;color:var(--soft)}
+.desc{font-size:14px;color:var(--mute);line-height:1.5;word-break:keep-all;margin-top:8px}
+.go{position:absolute;top:22px;right:20px;font-family:var(--f-display);font-size:18px;color:var(--soft);transition:transform .4s ease,color .3s ease}
+.item:hover .go,.item:focus-visible .go{color:var(--ink);transform:translateX(4px)}
+
+.hint{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-block:20px 44px;font-size:13px;color:var(--soft);border-top:1px solid var(--rule)}
+.replay{appearance:none;background:transparent;border:1px solid var(--rule);color:var(--mute);font:500 13px/1 var(--f-text);padding:9px 15px;border-radius:999px;cursor:pointer}
+.replay:hover{color:var(--ink);border-color:rgba(0,0,0,.25)}
+.replay:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;padding-block:20px 26px;border-top:1px solid var(--rule);font-family:var(--f-display);font-size:12px;color:var(--soft)}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);width:max-content;padding:11px 18px;border-radius:999px;background:var(--ink);color:#fff;font-size:14px;text-align:center;animation:toast .35s cubic-bezier(.2,.7,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(16px);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+@keyframes toast{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media (max-width:860px){
+  .index{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .index>li:nth-child(3) .item{border-left:0}
+  .index>li:nth-child(n+3) .item{border-top:1px solid var(--rule)}
+}
+@media (max-width:520px){
+  .chip{display:none}
+  .space{height:210px}
+  .item{padding:20px 16px}
+  .go{top:18px;right:14px}
+  .desc{font-size:13px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero" id="hero">
+  <canvas id="ribbon" aria-hidden="true"></canvas>
+  <div class="wrap bar">
+    <a class="logo" href="#" aria-label="PRISM 홈">
+      <svg viewBox="0 0 22 14" aria-hidden="true" fill="none" stroke-width="1.6" stroke-linecap="round">
+        <path d="M1 10 C6 2, 10 12, 21 4" style="stroke:var(--c1)"/>
+        <path d="M1 12 C6 4, 10 13, 21 7" style="stroke:var(--c3)"/>
+        <path d="M1 8 C6 0, 10 10, 21 1.5" style="stroke:var(--c4)" opacity=".7"/>
+      </svg>
+      PRISM
+    </a>
+    <span class="chip">Internal</span>
+  </div>
+
+  <div class="wrap head">
+    <p class="acro"><b>PR</b>oduct <b>I</b>nformation <b>S</b>ystem <b>M</b>anagement</p>
+    <h1>PRISM</h1>
+    <p class="lede">제품의 모든 정보를 <strong>한 결로 엮어</strong> 보여줍니다.</p>
+  </div>
+
+  <div class="space" aria-hidden="true"></div>
+
+  <nav class="wrap" aria-label="PRISM 메뉴">
+    <ul class="index">
+      <li><a class="item" href="#shortcuts" style="--c:var(--c1)" data-i="0" data-to="바로가기로">
+        <span class="bar-c"></span><span class="name">바로가기</span><span class="en">Shortcuts</span>
+        <span class="desc">자주 쓰는 시스템과 문서로 한 번에 이동</span><span class="go" aria-hidden="true">→</span></a></li>
+      <li><a class="item" href="#products" style="--c:var(--c2)" data-i="1" data-to="제품현황으로">
+        <span class="bar-c"></span><span class="name">제품현황</span><span class="en">Products</span>
+        <span class="desc">제품별 상태, 사양, 일정을 한눈에</span><span class="go" aria-hidden="true">→</span></a></li>
+      <li><a class="item" href="#ideas" style="--c:var(--c3)" data-i="2" data-to="아이디어게시판으로">
+        <span class="bar-c"></span><span class="name">아이디어게시판</span><span class="en">Ideas</span>
+        <span class="desc">제안하고, 모으고, 함께 다듬기</span><span class="go" aria-hidden="true">→</span></a></li>
+      <li><a class="item" href="#recipients" style="--c:var(--c4)" data-i="3" data-to="수신처관리로">
+        <span class="bar-c"></span><span class="name">수신처관리</span><span class="en">Recipients</span>
+        <span class="desc">배포와 알림을 받을 사람, 그룹 관리</span><span class="go" aria-hidden="true">→</span></a></li>
+    </ul>
+  </nav>
+
+  <div class="wrap"><div class="hint">
+    <button class="replay" id="replay" type="button">다시 재생</button>
+    <span>메뉴에 올리면 리본에서 그 색의 실만 또렷해져요.</span>
+  </div></div>
+</header>
+
+<div class="wrap"><footer class="foot"><span>PRISM · PRoduct Information System Management</span><span>랜딩 페이지 샘플 · 메뉴 링크는 연결 전</span></footer></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+  const hero = document.getElementById('hero');
+  const canvas = document.getElementById('ribbon');
+  const ctx = canvas.getContext('2d');
+  const space = document.querySelector('.space');
+  const toast = document.getElementById('toast');
+  const reduceMq = matchMedia('(prefers-reduced-motion: reduce)');
+
+  // menu → quarter of the ribbon (red, green, cyan, violet threads)
+  const boost = [1, 1, 1, 1];
+  let hover = -1, tt = 0;
+  document.querySelectorAll('.item').forEach(el => {
+    const i = +el.dataset.i;
+    el.addEventListener('pointerenter', () => { hover = i; });
+    el.addEventListener('pointerleave', () => { if (hover === i) hover = -1; });
+    el.addEventListener('focus', () => { hover = i; });
+    el.addEventListener('blur', () => { if (hover === i) hover = -1; });
+    el.addEventListener('click', e => {
+      // 샘플용: href가 '#...'인 동안만 이동을 막습니다. 실제 주소로 바꾸면 그대로 이동합니다.
+      if ((el.getAttribute('href') || '').startsWith('#')) {
+        e.preventDefault();
+        toast.textContent = `${el.dataset.to} 이동합니다 · 샘플이라 링크는 아직 비어 있어요`;
+        toast.hidden = false; toast.style.animation = 'none'; void toast.offsetWidth; toast.style.animation = '';
+        clearTimeout(tt); tt = setTimeout(() => { toast.hidden = true; }, 2800);
+      }
+    });
+  });
+
+  // thread hues: red → orange → yellow → green → cyan → blue → violet
+  const HUE_STOPS = [2, 22, 48, 128, 188, 228, 262];
+  const hueAt = s => { const x = s * (HUE_STOPS.length - 1), i = Math.min(HUE_STOPS.length - 2, Math.floor(x)); return HUE_STOPS[i] + (HUE_STOPS[i + 1] - HUE_STOPS[i]) * (x - i); };
+
+  let W = 0, H = 0, CY = 0, AMP = 0;
+  function resize() {
+    const r = hero.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    W = r.width; H = r.height;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const sr = space.getBoundingClientRect();
+    CY = sr.top - r.top + sr.height * .5;
+    AMP = Math.min(260, sr.height * (W < 560 ? .6 : .95));
+  }
+
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  let t0 = performance.now();
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const reduce = reduceMq.matches;
+    const t = reduce ? 6 : (now - t0) / 1000;
+    const prog = reduce ? 1 : easeInOut(clamp((t - .3) / 2.4));
+    for (let i = 0; i < 4; i++) {
+      const target = hover < 0 ? 1 : (i === hover ? 2 : .22);
+      boost[i] += (target - boost[i]) * (reduce ? 1 : .08);
+    }
+    ctx.clearRect(0, 0, W, H);
+    const N = W < 560 ? 44 : 64;
+    const step = W < 560 ? 8 : 10;
+    const x0 = -20, x1 = x0 + (W + 40) * prog;
+    const tw = reduce ? 0 : t;
+    for (let n = 0; n < N; n++) {
+      const s = n / (N - 1), q = Math.min(3, Math.floor(s * 4)), k = boost[q];
+      ctx.strokeStyle = `hsla(${hueAt(s)},88%,${q === 1 ? 44 : 54}%,${Math.min(.95, .42 * k)})`;
+      ctx.lineWidth = Math.min(2, .9 * (k > 1 ? 1 + (k - 1) * .6 : 1));
+      ctx.beginPath();
+      for (let x = x0; x <= x1 + step; x += step) {
+        const xx = Math.min(x, x1), u = xx / W;
+        const cy = CY + AMP * .28 * Math.sin(u * Math.PI * 1.35 + tw * .32) + AMP * .1 * Math.sin(u * Math.PI * 4 - tw * .55);
+        const w = AMP * Math.sin(u * Math.PI * 1.1 + tw * .2 + .9);
+        const y = cy + (s - .5) * w + Math.sin(u * 11 + s * 5 + tw * .8) * 2.2;
+        if (x === x0) ctx.moveTo(xx, y); else ctx.lineTo(xx, y);
+        if (xx >= x1) break;
+      }
+      ctx.stroke();
+    }
+  }
+  document.getElementById('replay').addEventListener('click', () => {
+    t0 = performance.now();
+    document.querySelectorAll('.acro,h1,.lede,.index>li').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+  });
+  resize();
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(hero); else addEventListener('resize', resize);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
