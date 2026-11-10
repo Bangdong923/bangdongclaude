@@ -127,7 +127,7 @@ h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(72px,11
 
   <div class="wrap"><div class="hint">
     <button class="replay" id="replay" type="button">다시 재생</button>
-    <span>메뉴에 올리면 리본에서 그 색의 실만 또렷해져요.</span>
+    <span>마우스를 움직이면 리본이 따라 일렁여요. 메뉴에 올리면 그 색의 실만 또렷해져요.</span>
   </div></div>
 </header>
 
@@ -182,10 +182,29 @@ h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(72px,11
   const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   let t0 = performance.now();
 
+  // pointer: the ribbon leans toward the cursor and ripples with how fast it moves
+  const mouse = { x: 0, y: 0, tx: 0, ty: 0, on: 0, onT: 0, energy: 0, lastX: 0, lastY: 0, seen: false };
+  hero.addEventListener('pointermove', e => {
+    const r = hero.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    if (!mouse.seen) { mouse.x = mouse.lastX = x; mouse.y = mouse.lastY = y; mouse.seen = true; }
+    const speed = Math.hypot(x - mouse.lastX, y - mouse.lastY);
+    mouse.energy = Math.min(1, mouse.energy + speed * .012);
+    mouse.lastX = x; mouse.lastY = y;
+    mouse.tx = x; mouse.ty = y; mouse.onT = 1;
+  });
+  hero.addEventListener('pointerleave', () => { mouse.onT = 0; });
+
   function frame(now) {
     requestAnimationFrame(frame);
     const reduce = reduceMq.matches;
     const t = reduce ? 6 : (now - t0) / 1000;
+    mouse.x += (mouse.tx - mouse.x) * .12;
+    mouse.y += (mouse.ty - mouse.y) * .12;
+    mouse.on += (mouse.onT - mouse.on) * .05;
+    mouse.energy *= .965;
+    const mOn = reduce ? 0 : mouse.on, mE = reduce ? 0 : mouse.energy;
+    const SIG2 = 2 * Math.pow(Math.max(110, W * .1), 2);
     const prog = reduce ? 1 : easeInOut(clamp((t - .3) / 2.4));
     for (let i = 0; i < 4; i++) {
       const target = hover < 0 ? 1 : (i === hover ? 2 : .22);
@@ -205,7 +224,15 @@ h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(72px,11
         const xx = Math.min(x, x1), u = xx / W;
         const cy = CY + AMP * .28 * Math.sin(u * Math.PI * 1.35 + tw * .32) + AMP * .1 * Math.sin(u * Math.PI * 4 - tw * .55);
         const w = AMP * Math.sin(u * Math.PI * 1.1 + tw * .2 + .9);
-        const y = cy + (s - .5) * w + Math.sin(u * 11 + s * 5 + tw * .8) * 2.2;
+        let y = cy + (s - .5) * w + Math.sin(u * 11 + s * 5 + tw * .8) * 2.2;
+        if (mOn > .001) {
+          const dx = xx - mouse.x, infl = Math.exp(-(dx * dx) / SIG2) * mOn;
+          if (infl > .002) {
+            const lean = clamp((mouse.y - cy) / (AMP * 1.6), -1, 1) * AMP * .2;
+            const ripple = Math.sin(dx * .045 - tw * 6 + s * 2.6) * (3 + 16 * mE);
+            y += infl * (lean + ripple) + infl * (s - .5) * w * .12;
+          }
+        }
         if (x === x0) ctx.moveTo(xx, y); else ctx.lineTo(xx, y);
         if (xx >= x1) break;
       }
