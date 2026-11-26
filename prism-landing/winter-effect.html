@@ -1,0 +1,335 @@
+<!-- ============================================================
+  PRISM 겨울 효과 (눈 + 산타 썰매)
+  사용법: 아래 <script> ... </script> 전체를 복사해서
+          적용할 페이지의 </body> 바로 위에 붙여넣으세요.
+  - 외부 라이브러리, 이미지 파일 없이 이 코드만으로 동작합니다.
+  - 화면 위에 투명한 캔버스를 한 장 얹는 방식이라
+    기존 버튼, 링크 클릭을 막지 않습니다.
+  - 설정은 맨 위 CONFIG에서 바꾸면 됩니다.
+============================================================ -->
+<script>
+(() => {
+  // ===================== 설정 =====================
+  const CONFIG = {
+    snow: true,               // 눈 내리기 켜기/끄기
+    snowDensity: 1,           // 눈의 양 (0.5 = 절반, 2 = 두 배)
+    snowColor: '150,172,202', // 눈 색 (R,G,B). 흰 배경용 기본값, 어두운 배경이면 '255,255,255'
+    santa: true,              // 산타 썰매 켜기/끄기
+    santaFirstDelay: 2,       // 페이지 열린 뒤 첫 비행까지 (초)
+    santaEvery: 16,           // 비행 간격 (초)
+    santaDuration: 7.5,       // 한 번 화면을 가로지르는 시간 (초)
+    santaSize: 0.75,          // 썰매 크기 (1 = 약 260px 폭)
+    santaHeight: 0.14,        // 비행 높이 (화면 위에서부터 비율, 0 = 맨 위)
+    zIndex: 50                // 다른 요소보다 앞에 보이게 할 순서
+  };
+  // ================================================
+
+  if (window.__prismWinter) return; // 두 번 붙여넣어도 한 번만 실행
+  window.__prismWinter = true;
+
+  const reduceMq = matchMedia('(prefers-reduced-motion: reduce)');
+  const canvas = document.createElement('canvas');
+  canvas.setAttribute('aria-hidden', 'true');
+  canvas.style.cssText = `position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:${CONFIG.zIndex}`;
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  let W = 0, H = 0, flakes = [], sparks = [];
+
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.round(Math.min(220, W * H / 7500) * CONFIG.snowDensity);
+    flakes = Array.from({ length: n }, () => {
+      const d = Math.random();
+      return { x: Math.random() * W, y: Math.random() * H, d, r: .8 + d * d * 3.2, vy: 14 + d * 42, ph: Math.random() * 6.283 };
+    });
+  }
+
+  // 마우스를 좌우로 움직이면 눈발에 바람이 불어요
+  let wind = 0, lastX = null;
+  addEventListener('pointermove', e => {
+    if (lastX !== null) wind = clamp(wind + (e.clientX - lastX) * .6, -60, 60);
+    lastX = e.clientX;
+  }, { passive: true });
+
+  // ===================== 눈 =====================
+  function drawSnow(dt, t, still) {
+    for (const f of flakes) {
+      if (!still) {
+        f.y += f.vy * dt;
+        f.x += (Math.sin(t * .6 + f.ph) * 10 + wind * .5) * (.3 + f.d) * dt;
+        if (f.y > H + 6) { f.y = -6; f.x = Math.random() * W; }
+        if (f.x < -6) f.x = W + 6; else if (f.x > W + 6) f.x = -6;
+      }
+      const a = .28 + f.d * .5;
+      if (f.r > 2.8) {
+        const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 1.6);
+        g.addColorStop(0, `rgba(${CONFIG.snowColor},${a})`); g.addColorStop(1, `rgba(${CONFIG.snowColor},0)`);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * 1.6, 0, 6.283); ctx.fill();
+      } else {
+        ctx.fillStyle = `rgba(${CONFIG.snowColor},${a})`;
+        ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.283); ctx.fill();
+      }
+    }
+  }
+
+  // ===================== 클래식 산타 그리기 =====================
+  const C = {
+    red: '#c8102e', redLight: '#e8384f', redDark: '#8a0b1f',
+    fur: '#fffdf8', furLine: 'rgba(120,100,80,.28)',
+    skin: '#f4c7a6', cheek: 'rgba(226,92,92,.55)',
+    belt: '#1b1b1f', gold: '#d8a93a', goldLight: '#f6dc8a', goldDark: '#a87a22',
+    boot: '#141417', burlap: '#9c7248', burlapDark: '#6f4d2c',
+    hide: '#8a5a33', hideDark: '#5c391d', hideLight: '#c4955f', antler: '#7a5c3c', hoof: '#1d1712',
+    sleigh: '#b0142c', sleighDark: '#6e0a1a', leather: '#7a1f1a'
+  };
+  function lin(x0, y0, x1, y1, stops) { const g = ctx.createLinearGradient(x0, y0, x1, y1); stops.forEach(([o, c]) => g.addColorStop(o, c)); return g; }
+  function rad(x, y, r, stops, fx, fy) { const g = ctx.createRadialGradient(fx ?? x, fy ?? y, 0, x, y, r); stops.forEach(([o, c]) => g.addColorStop(o, c)); return g; }
+  function line(x1, y1, x2, y2, w, s) { ctx.strokeStyle = s; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
+  function rrect(x, y, w, h, r) { if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h); }
+  function fur(draw) { ctx.fillStyle = C.fur; ctx.strokeStyle = C.furLine; ctx.lineWidth = .7; ctx.beginPath(); draw(); ctx.fill(); ctx.stroke(); }
+  function bell(x, y, r) {
+    ctx.fillStyle = rad(x, y, r, [[0, C.goldLight], [.6, C.gold], [1, C.goldDark]], x - r * .35, y - r * .4);
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill();
+    ctx.fillStyle = C.goldDark; ctx.beginPath(); ctx.arc(x, y + r * .45, r * .25, 0, 6.283); ctx.fill();
+  }
+
+  function leg(hx, hy, a1, a2, alpha) {
+    const kx = hx + Math.sin(a1) * 12, ky = hy + Math.cos(a1) * 12;
+    const fx = kx + Math.sin(a2) * 12.5, fy = ky + Math.cos(a2) * 12.5;
+    ctx.globalAlpha = alpha;
+    line(hx, hy, kx, ky, 3.4, C.hideDark);
+    line(kx, ky, fx, fy, 1.9, C.hideDark);
+    ctx.fillStyle = C.hoof; ctx.beginPath(); ctx.ellipse(fx, fy, 2, 1.3, a2, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function deer(ox, oy, ph, lead, t) {
+    ctx.save(); ctx.translate(ox, oy);
+    const m = .5 + .5 * Math.sin(ph), n = .5 + .5 * Math.sin(ph + Math.PI);
+    leg(14, 1, lerp(.45, 1.15, m), lerp(-.8, .8, m), .7);
+    leg(-21, 0, lerp(-.55, -1.25, n), lerp(-.15, -1.5, n), .7);
+    // 몸통
+    ctx.fillStyle = lin(0, -15, 0, 7, [[0, C.hideDark], [.45, C.hide], [1, C.hideLight]]);
+    ctx.beginPath();
+    ctx.moveTo(18, -11);
+    ctx.bezierCurveTo(6, -14, -14, -13, -24, -10);
+    ctx.bezierCurveTo(-30, -8, -31, 0, -26, 3);
+    ctx.bezierCurveTo(-16, 6, 4, 6, 16, 4);
+    ctx.bezierCurveTo(22, 3, 25, -2, 24, -6);
+    ctx.closePath(); ctx.fill();
+    // 목, 가슴 털
+    ctx.fillStyle = lin(14, -28, 30, -4, [[0, C.hide], [1, C.hideLight]]);
+    ctx.beginPath();
+    ctx.moveTo(13, -10); ctx.bezierCurveTo(19, -16, 25, -24, 29, -29);
+    ctx.lineTo(35, -25); ctx.bezierCurveTo(30, -18, 26, -9, 24, -4); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(245,232,210,.85)';
+    ctx.beginPath(); ctx.moveTo(25, -10); ctx.quadraticCurveTo(30, -15, 32, -22); ctx.quadraticCurveTo(28, -12, 24, -5); ctx.closePath(); ctx.fill();
+    // 머리, 눈
+    ctx.fillStyle = lin(30, -33, 44, -22, [[0, C.hide], [1, C.hideLight]]);
+    ctx.beginPath();
+    ctx.moveTo(29, -30); ctx.bezierCurveTo(33, -33.5, 40, -31.5, 46, -27.5);
+    ctx.bezierCurveTo(48.5, -26.5, 47.5, -23, 44, -23);
+    ctx.bezierCurveTo(40, -22.6, 36, -22, 32.5, -21.5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = C.hoof; ctx.beginPath(); ctx.arc(37.5, -28.2, .9, 0, 6.283); ctx.fill();
+    // 귀, 하얀 꼬리
+    ctx.fillStyle = C.hideDark;
+    ctx.beginPath(); ctx.moveTo(31.5, -30); ctx.lineTo(26.5, -35); ctx.lineTo(33.5, -31.5); ctx.fill();
+    ctx.fillStyle = C.fur;
+    ctx.beginPath(); ctx.moveTo(-27, -7); ctx.lineTo(-33.5, -11.5); ctx.lineTo(-28, -3.5); ctx.fill();
+    // 뿔
+    ctx.strokeStyle = C.antler; ctx.lineCap = 'round';
+    ctx.lineWidth = 1.7; ctx.beginPath();
+    ctx.moveTo(33, -31.5); ctx.bezierCurveTo(32, -40, 26, -48, 17, -52);
+    ctx.moveTo(31.4, -39); ctx.quadraticCurveTo(35, -42, 37.5, -47);
+    ctx.moveTo(28.4, -44.6); ctx.quadraticCurveTo(31, -49, 32, -54);
+    ctx.moveTo(23, -48.8); ctx.quadraticCurveTo(24, -53, 23.5, -57.5);
+    ctx.stroke();
+    ctx.globalAlpha = .65; ctx.lineWidth = 1.3; ctx.beginPath();
+    ctx.moveTo(30.6, -31.5); ctx.bezierCurveTo(28, -39, 22, -44, 13, -46);
+    ctx.moveTo(25.6, -40); ctx.quadraticCurveTo(28, -44, 28.5, -49);
+    ctx.moveTo(19.5, -43.8); ctx.quadraticCurveTo(20, -48, 18.5, -52);
+    ctx.stroke(); ctx.globalAlpha = 1;
+    // 붉은 가죽 하네스 + 금방울
+    ctx.strokeStyle = C.leather; ctx.lineWidth = 2.6;
+    ctx.beginPath(); ctx.moveTo(15, -11); ctx.quadraticCurveTo(12, -3, 15, 5); ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(22, -9); ctx.quadraticCurveTo(25, -4, 23, 0); ctx.stroke();
+    bell(24.5, -1, 2.3); bell(19, 4.5, 1.9);
+    // 가까운 쪽 다리
+    leg(18, 2, lerp(.55, 1.3, m), lerp(-.7, .95, m), 1);
+    leg(-24, 1, lerp(-.65, -1.35, n), lerp(-.25, -1.6, n), 1);
+    // 루돌프의 빨간 코
+    if (lead) {
+      const pulse = .7 + .3 * Math.sin(t * 4.5);
+      ctx.fillStyle = rad(46.6, -25.2, 16, [[0, `rgba(255,50,60,${.55 * pulse})`], [1, 'rgba(255,50,60,0)']]);
+      ctx.beginPath(); ctx.arc(46.6, -25.2, 16, 0, 6.283); ctx.fill();
+      ctx.fillStyle = rad(46.6, -25.2, 2.8, [[0, '#ffd6da'], [.35, '#ff2d45'], [1, '#a50e22']], 45.9, -26);
+      ctx.beginPath(); ctx.arc(46.6, -25.2, 2.7, 0, 6.283); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function sleigh(t) {
+    const ph = t * 8.5;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    // 고삐
+    ctx.globalAlpha = .75;
+    line(-12, -31, 100, -32, .9, C.leather);
+    line(-12, -31, 158, -36, .9, C.leather);
+    ctx.globalAlpha = 1;
+    line(22, -18, 46, -6 + Math.sin(ph) * 1.4, 1.4, C.leather);
+    line(94, -6 + Math.sin(ph) * 1.4, 104, -10 + Math.sin(ph + .9) * 1.4, 1.4, C.leather);
+    // 선물 자루와 선물
+    ctx.fillStyle = '#2f7d5b'; ctx.fillRect(-58, -55, 9, 8);
+    ctx.fillStyle = C.gold; ctx.fillRect(-54.3, -55, 1.6, 8); ctx.fillRect(-58, -51.8, 9, 1.6);
+    ctx.fillStyle = '#3f8fd0'; ctx.save(); ctx.translate(-46, -53); ctx.rotate(.25); ctx.fillRect(-4, -4, 8, 8);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(-.8, -4, 1.6, 8); ctx.restore();
+    ctx.fillStyle = lin(-58, -50, -42, -32, [[0, C.burlap], [1, C.burlapDark]]);
+    ctx.beginPath(); ctx.ellipse(-50, -40, 11.5, 9.5, -.2, 0, 6.283); ctx.fill();
+    line(-60, -47, -41, -46, 1.6, C.burlapDark);
+    // 산타 몸
+    ctx.fillStyle = rad(-31, -34, 14, [[0, C.redLight], [.55, C.red], [1, C.redDark]], -35, -40);
+    ctx.beginPath(); ctx.ellipse(-31, -34, 11.5, 13, 0, 0, 6.283); ctx.fill();
+    fur(() => rrect(-27.5, -44, 4.2, 22, 2));
+    ctx.fillStyle = C.belt; ctx.fillRect(-42.5, -32, 23, 3.6);
+    ctx.fillStyle = C.gold; ctx.fillRect(-28.5, -32.8, 5, 5.2);
+    ctx.fillStyle = C.belt; ctx.fillRect(-27.2, -31.5, 2.4, 2.6);
+    // 팔, 소매털, 장갑
+    line(-25, -38, -15, -31.5, 5, C.red);
+    fur(() => ctx.ellipse(-14.5, -31.2, 2.4, 3.1, .5, 0, 6.283));
+    ctx.fillStyle = C.boot; ctx.beginPath(); ctx.arc(-11.4, -30.4, 2.6, 0, 6.283); ctx.fill();
+    // 얼굴
+    ctx.fillStyle = C.skin; ctx.beginPath(); ctx.arc(-27, -51, 5.8, 0, 6.283); ctx.fill();
+    ctx.fillStyle = C.cheek; ctx.beginPath(); ctx.arc(-23.6, -49.6, 1.8, 0, 6.283); ctx.fill();
+    ctx.fillStyle = '#2a1d17'; ctx.beginPath(); ctx.arc(-24.4, -52.6, .75, 0, 6.283); ctx.fill();
+    // 수염, 콧수염, 코
+    fur(() => {
+      ctx.moveTo(-31.5, -50); ctx.bezierCurveTo(-32, -40, -24, -36, -19.2, -44.5);
+      ctx.bezierCurveTo(-19.6, -47.5, -21, -48.5, -22.5, -48.2);
+      ctx.bezierCurveTo(-24.5, -47, -27.5, -47.5, -29, -50.5); ctx.closePath();
+    });
+    fur(() => ctx.ellipse(-21.8, -48.6, 3.1, 1.6, -.2, 0, 6.283));
+    ctx.fillStyle = '#e8a98a'; ctx.beginPath(); ctx.arc(-21.2, -50.3, 1.3, 0, 6.283); ctx.fill();
+    // 모자
+    ctx.fillStyle = lin(-46, -68, -24, -55, [[0, C.redDark], [.5, C.red], [1, C.redLight]]);
+    ctx.beginPath();
+    ctx.moveTo(-33, -55); ctx.bezierCurveTo(-30.5, -64, -38, -70, -48, -66.5);
+    ctx.lineTo(-46.5, -64.5); ctx.bezierCurveTo(-38.5, -66.5, -30.5, -62, -21, -55.5); ctx.closePath(); ctx.fill();
+    fur(() => rrect(-33.8, -58.4, 14.2, 4.4, 2.2));
+    fur(() => ctx.arc(-48.6, -66, 2.8, 0, 6.283));
+    // 썰매 몸체
+    const body = () => {
+      ctx.beginPath();
+      ctx.moveTo(-60, -2);
+      ctx.bezierCurveTo(-68, -16, -66, -36, -56, -40);
+      ctx.bezierCurveTo(-52, -41.5, -49.5, -38, -51, -35);
+      ctx.bezierCurveTo(-48, -26, -40, -21, -26, -21);
+      ctx.lineTo(-6, -21);
+      ctx.bezierCurveTo(6, -21, 12, -30, 20, -34);
+      ctx.bezierCurveTo(26, -37, 30.5, -32, 26.5, -28);
+      ctx.bezierCurveTo(23.5, -25, 20, -27, 21, -29.5);
+      ctx.bezierCurveTo(16, -22, 12, -8, 4, -2);
+      ctx.closePath();
+    };
+    ctx.fillStyle = lin(0, -40, 0, -2, [[0, '#d42a42'], [.5, C.sleigh], [1, C.sleighDark]]);
+    body(); ctx.fill();
+    ctx.strokeStyle = C.gold; ctx.lineWidth = 1.3; body(); ctx.stroke();
+    // 금 덩굴 장식
+    ctx.strokeStyle = C.goldLight; ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.moveTo(-55, -9); ctx.bezierCurveTo(-46, -15, -38, -4, -29, -10);
+    ctx.bezierCurveTo(-21, -15, -13, -5, -4, -10);
+    ctx.moveTo(-29, -10); ctx.bezierCurveTo(-27, -15, -22, -15, -23, -12);
+    ctx.moveTo(-46, -12); ctx.bezierCurveTo(-48, -17, -52, -15, -50, -13);
+    ctx.stroke();
+    // 금빛 썰매 날
+    ctx.strokeStyle = lin(-78, 0, 30, 0, [[0, C.goldDark], [.5, C.goldLight], [1, C.goldDark]]);
+    ctx.lineWidth = 2.2; ctx.beginPath();
+    ctx.moveTo(-70, 8); ctx.lineTo(14, 8);
+    ctx.bezierCurveTo(28, 8, 32, -4, 24, -6); ctx.bezierCurveTo(20, -7, 19, -2, 23, -1);
+    ctx.moveTo(-70, 8); ctx.bezierCurveTo(-78, 8, -79, 1, -74.5, .5); ctx.bezierCurveTo(-72, .5, -72, 3, -73.5, 3.4);
+    ctx.stroke();
+    line(-48, -2, -50, 8, 1.6, C.goldDark); line(-10, -2, -8, 8, 1.6, C.goldDark);
+    // 순록 두 마리 (앞이 루돌프)
+    deer(70, -8 + Math.sin(ph) * 1.5, ph, false, t);
+    deer(128, -12 + Math.sin(ph + .9) * 1.5, ph + .9, true, t);
+  }
+
+  // (x, y)에 썰매를 놓음. dir: 1 = 오른쪽으로, -1 = 왼쪽으로
+  function placeSleigh(x, y, ang, s, dir, t) {
+    ctx.save();
+    ctx.translate(x, y); ctx.rotate(ang); ctx.scale(s * dir, s);
+    ctx.translate(-52, 24);
+    sleigh(t);
+    ctx.restore();
+  }
+
+  // ===================== 금빛 반짝이 =====================
+  function emitSparks(x, y, dir, s) {
+    sparks.push({
+      x: x - dir * 60 * s + (Math.random() - .5) * 10 * s, y: y + 8 * s + (Math.random() - .5) * 8 * s,
+      vx: -dir * (10 + Math.random() * 25), vy: 8 + Math.random() * 22,
+      life: 0, max: 1.2 + Math.random() * 1.1, r: (1 + Math.random() * 1.8) * Math.max(.6, s),
+      c: ['#d8a93a', '#f2d27a', '#e04a5a'][Math.floor(Math.random() * 3)]
+    });
+  }
+  function drawSparks(dt) {
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const p = sparks[i];
+      p.life += dt; if (p.life > p.max) { sparks.splice(i, 1); continue; }
+      p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= .985;
+      const a = Math.sin(Math.PI * p.life / p.max), r = p.r * (.6 + .4 * a);
+      ctx.globalAlpha = a * .9; ctx.fillStyle = p.c;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y - r * 2); ctx.lineTo(p.x + r * .5, p.y - r * .5); ctx.lineTo(p.x + r * 2, p.y);
+      ctx.lineTo(p.x + r * .5, p.y + r * .5); ctx.lineTo(p.x, p.y + r * 2); ctx.lineTo(p.x - r * .5, p.y + r * .5);
+      ctx.lineTo(p.x - r * 2, p.y); ctx.lineTo(p.x - r * .5, p.y - r * .5); ctx.closePath(); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ===================== 애니메이션 루프 =====================
+  let t0 = performance.now(), last = t0, flyAt = CONFIG.santaFirstDelay, flyCount = 0;
+
+  // 버튼 등에서 PrismWinter.fly() 를 부르면 바로 한 번 날아가요
+  window.PrismWinter = { fly() { flyAt = (performance.now() - t0) / 1000; } };
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const still = reduceMq.matches; // 사용자가 '동작 줄이기'를 켠 경우 멈춘 화면
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    const t = (now - t0) / 1000;
+    wind *= .97;
+    ctx.clearRect(0, 0, W, H);
+    if (CONFIG.snow) drawSnow(dt, t, still);
+
+    if (CONFIG.santa && !still && t >= flyAt) {
+      const p = (t - flyAt) / CONFIG.santaDuration;
+      if (p > 1) { flyCount++; flyAt = t + Math.max(0, CONFIG.santaEvery - CONFIG.santaDuration); }
+      else {
+        const dir = flyCount % 2 === 0 ? 1 : -1;
+        const s = CONFIG.santaSize * (W < 560 ? .6 : 1);
+        const path = q => {
+          const x = dir > 0 ? -220 * s + (W + 440 * s) * q : W + 220 * s - (W + 440 * s) * q;
+          return [x, H * CONFIG.santaHeight + H * .05 * Math.sin(q * Math.PI * 1.6 + flyCount)];
+        };
+        const [ax, ay] = path(p), [bx, by] = path(p + .002);
+        const ang = clamp(Math.atan2((by - ay) * dir, (bx - ax) * dir), -.35, .35);
+        emitSparks(ax, ay, dir, s);
+        placeSleigh(ax, ay, ang, s, dir, t);
+      }
+    }
+    drawSparks(still ? 0 : dt);
+  }
+
+  resize();
+  addEventListener('resize', resize);
+  requestAnimationFrame(frame);
+})();
+</script>
