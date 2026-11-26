@@ -1,0 +1,78 @@
+<!-- ============================================================
+  PRISM 눈 내리는 효과
+  사용법: 아래 <script> ... </script> 전체를 복사해서
+          적용할 페이지의 </body> 바로 위에 붙여넣으세요.
+  - 외부 라이브러리 없이 이 코드만으로 동작합니다.
+  - 화면 위에 투명한 막을 한 장 얹는 방식이라 클릭을 막지 않습니다.
+  - 마우스를 좌우로 움직이면 눈발이 바람을 탑니다.
+============================================================ -->
+<script>
+(() => {
+  // ===================== 설정 =====================
+  const CONFIG = {
+    density: 1,               // 눈의 양 (0.5 = 절반, 2 = 두 배)
+    color: '150,172,202',     // 눈 색 (R,G,B). 흰 배경용 기본값, 어두운 배경이면 '255,255,255'
+    speed: 1,                 // 떨어지는 속도 (0.5 = 느리게, 1.5 = 빠르게)
+    wind: true,               // 마우스를 따라 바람 불기
+    zIndex: 50                // 다른 요소보다 앞에 보이게 할 순서 (글자 뒤로 보내려면 -1)
+  };
+  // ================================================
+
+  if (window.__prismSnow) return;
+  window.__prismSnow = true;
+
+  const canvas = document.createElement('canvas');
+  canvas.setAttribute('aria-hidden', 'true');
+  canvas.style.cssText = `position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:${CONFIG.zIndex}`;
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+  let W = 0, H = 0, flakes = [], wind = 0, lastX = null;
+
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.round(Math.min(220, W * H / 7500) * CONFIG.density);
+    flakes = Array.from({ length: n }, () => {
+      const d = Math.random(); // 0 = 멀리 있는 작은 눈, 1 = 가까운 큰 눈
+      return { x: Math.random() * W, y: Math.random() * H, d, r: .8 + d * d * 3.2, vy: (14 + d * 42) * CONFIG.speed, ph: Math.random() * 6.283 };
+    });
+  }
+
+  if (CONFIG.wind) addEventListener('pointermove', e => {
+    if (lastX !== null) wind = Math.max(-60, Math.min(60, wind + (e.clientX - lastX) * .6));
+    lastX = e.clientX;
+  }, { passive: true });
+
+  let last = performance.now();
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(.05, (now - last) / 1000), t = now / 1000; last = now;
+    wind *= .97;
+    ctx.clearRect(0, 0, W, H);
+    for (const f of flakes) {
+      if (!still.matches) {
+        f.y += f.vy * dt;
+        f.x += (Math.sin(t * .6 + f.ph) * 10 + wind * .5) * (.3 + f.d) * dt;
+        if (f.y > H + 6) { f.y = -6; f.x = Math.random() * W; }
+        if (f.x < -6) f.x = W + 6; else if (f.x > W + 6) f.x = -6;
+      }
+      const a = .28 + f.d * .5;
+      if (f.r > 2.8) { // 가까운 큰 눈은 살짝 흐릿하게
+        const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 1.6);
+        g.addColorStop(0, `rgba(${CONFIG.color},${a})`); g.addColorStop(1, `rgba(${CONFIG.color},0)`);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * 1.6, 0, 6.283); ctx.fill();
+      } else {
+        ctx.fillStyle = `rgba(${CONFIG.color},${a})`;
+        ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.283); ctx.fill();
+      }
+    }
+  }
+
+  resize();
+  addEventListener('resize', resize);
+  requestAnimationFrame(frame);
+})();
+</script>
