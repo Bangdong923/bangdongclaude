@@ -1,0 +1,65 @@
+<!-- ============================================================
+  PRISM 크리스마스 트리 글씨
+  1) 아래 <style> ~ </style> 를 페이지 <head> 안(또는 </body> 바로 위)에 붙여넣기
+  2) 기존 PRISM 글자를 아래 형태로 바꾸기
+     예) <h1>PRISM</h1>
+      →  <h1><span class="xmas-tree" data-text="PRISM">PR<span class="xmas-star">I</span>SM</span></h1>
+  - 글자 크기, 글꼴은 기존 h1 스타일을 그대로 따라갑니다.
+  - 별이 글자 위로 삐져나오므로 위쪽이 잘리면 h1에 padding-top:.22em 를 주세요.
+  - 시즌이 끝나면 span 두 개만 지우고 <h1>PRISM</h1> 으로 되돌리면 됩니다.
+============================================================ -->
+<style>
+/* ===== PRISM 크리스마스 트리 글씨 ===== */
+.xmas-tree{
+  position:relative; display:inline-block; isolation:isolate;
+  color:#1b6b3f; /* 효과를 못 쓰는 브라우저용 기본 색 */
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.96) 0 11%, rgba(255,255,255,0) 19%),                                   /* 쌓인 눈 */
+    repeating-radial-gradient(circle at 50% -2.2em, transparent 0 .3em, rgba(226,180,70,.9) .3em .322em, transparent .322em .4em), /* 아래로 처진 금색 가랜드 */
+    linear-gradient(180deg, #34a364 0%, #1d7444 42%, #0f4a2b 100%);                                                   /* 전나무 초록 */
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+/* 반짝이는 전구 두 세트가 번갈아 켜져요 */
+.xmas-tree::before,.xmas-tree::after{
+  content:attr(data-text); position:absolute; inset:0; pointer-events:none; z-index:1;
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+}
+.xmas-tree::before{
+  background-image:
+    radial-gradient(circle at 30% 30%, #ff4d5e 0 .028em, transparent .04em),
+    radial-gradient(circle at 75% 72%, #ffd45a 0 .028em, transparent .04em);
+  background-size:.42em .42em;
+  filter:drop-shadow(0 0 .04em rgba(255,210,120,.95));
+  animation:xmas-blink-a 2.2s ease-in-out infinite;
+}
+.xmas-tree::after{
+  background-image:
+    radial-gradient(circle at 72% 22%, #6fc3ff 0 .026em, transparent .038em),
+    radial-gradient(circle at 22% 78%, #fff3c4 0 .026em, transparent .038em);
+  background-size:.5em .5em; background-position:.13em .07em;
+  filter:drop-shadow(0 0 .04em rgba(200,230,255,.95));
+  animation:xmas-blink-b 2.2s ease-in-out infinite;
+}
+/* I 위의 금별 (트리 꼭대기). 글꼴이 달라 별이 뜨거나 묻히면 .xmas-tree에 --star-y:-.05em 처럼 위아래로 조정 */
+.xmas-tree .xmas-star{position:relative}
+.xmas-tree .xmas-star::before,.xmas-tree .xmas-star::after{
+  content:""; position:absolute; left:50%; pointer-events:none; z-index:2;
+}
+.xmas-tree .xmas-star::before{ /* 별빛 */
+  width:.5em; height:.5em; top:calc(-.075em + var(--star-y, 0em)); transform:translateX(-50%);
+  background:radial-gradient(circle, rgba(255,214,90,.75), rgba(255,214,90,0) 65%);
+  animation:xmas-glow 2.8s ease-in-out infinite;
+}
+.xmas-tree .xmas-star::after{ /* 별 */
+  width:.26em; height:.26em; top:calc(.045em + var(--star-y, 0em)); transform:translateX(-50%);
+  background:linear-gradient(160deg, #fff0b3, #f2c14e 45%, #c8901e);
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  animation:xmas-star 2.8s ease-in-out infinite;
+}
+@keyframes xmas-blink-a{0%,100%{opacity:1}50%{opacity:.04}}
+@keyframes xmas-blink-b{0%,100%{opacity:.04}50%{opacity:1}}
+@keyframes xmas-glow{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes xmas-star{0%,100%{transform:translateX(-50%) rotate(-6deg) scale(1)}50%{transform:translateX(-50%) rotate(6deg) scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.xmas-tree::before,.xmas-tree::after,.xmas-tree .xmas-star::before,.xmas-tree .xmas-star::after{animation:none}}
+</style>

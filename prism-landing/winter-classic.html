@@ -43,7 +43,7 @@ body{margin:0;color:var(--ink);font-family:var(--f-text);font-size:16px;line-hei
 .head{display:grid;gap:16px;padding-block:clamp(36px,8vh,88px) 0}
 .acro{margin:0;font-family:var(--f-display);font-size:14px;font-weight:500;color:var(--soft);animation:rise 1.4s .2s cubic-bezier(.2,.7,.2,1) both}
 .acro b{color:var(--ink);font-weight:700}
-h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(72px,11.5vw,148px);line-height:.9;letter-spacing:-.06em;animation:rise 1.8s .3s cubic-bezier(.2,.7,.2,1) both}
+h1{margin:0;padding-top:.22em;font-family:var(--f-display);font-weight:800;font-size:clamp(72px,11.5vw,148px);line-height:.9;letter-spacing:-.06em;animation:rise 1.8s .3s cubic-bezier(.2,.7,.2,1) both}
 .lede{margin:0;font-size:clamp(17px,1.7vw,21px);line-height:1.5;color:var(--mute);max-width:24em;word-break:keep-all;text-wrap:balance;animation:rise 1.6s .5s cubic-bezier(.2,.7,.2,1) both}
 .lede strong{color:var(--ink);font-weight:500}
 
@@ -73,6 +73,59 @@ h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(72px,11
 .foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;padding-block:20px 26px;border-top:1px solid var(--rule);font-family:var(--f-display);font-size:12px;color:var(--soft)}
 
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);width:max-content;padding:11px 18px;border-radius:999px;background:var(--ink);color:#fff;font-size:14px;text-align:center;animation:toast .35s cubic-bezier(.2,.7,.2,1)}
+/* ===== PRISM 크리스마스 트리 글씨 ===== */
+.xmas-tree{
+  position:relative; display:inline-block; isolation:isolate;
+  color:#1b6b3f; /* 효과를 못 쓰는 브라우저용 기본 색 */
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.96) 0 11%, rgba(255,255,255,0) 19%),                                   /* 쌓인 눈 */
+    repeating-radial-gradient(circle at 50% -2.2em, transparent 0 .3em, rgba(226,180,70,.9) .3em .322em, transparent .322em .4em), /* 아래로 처진 금색 가랜드 */
+    linear-gradient(180deg, #34a364 0%, #1d7444 42%, #0f4a2b 100%);                                                   /* 전나무 초록 */
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+/* 반짝이는 전구 두 세트가 번갈아 켜져요 */
+.xmas-tree::before,.xmas-tree::after{
+  content:attr(data-text); position:absolute; inset:0; pointer-events:none; z-index:1;
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+}
+.xmas-tree::before{
+  background-image:
+    radial-gradient(circle at 30% 30%, #ff4d5e 0 .028em, transparent .04em),
+    radial-gradient(circle at 75% 72%, #ffd45a 0 .028em, transparent .04em);
+  background-size:.42em .42em;
+  filter:drop-shadow(0 0 .04em rgba(255,210,120,.95));
+  animation:xmas-blink-a 2.2s ease-in-out infinite;
+}
+.xmas-tree::after{
+  background-image:
+    radial-gradient(circle at 72% 22%, #6fc3ff 0 .026em, transparent .038em),
+    radial-gradient(circle at 22% 78%, #fff3c4 0 .026em, transparent .038em);
+  background-size:.5em .5em; background-position:.13em .07em;
+  filter:drop-shadow(0 0 .04em rgba(200,230,255,.95));
+  animation:xmas-blink-b 2.2s ease-in-out infinite;
+}
+/* I 위의 금별 (트리 꼭대기). 글꼴이 달라 별이 뜨거나 묻히면 .xmas-tree에 --star-y:-.05em 처럼 위아래로 조정 */
+.xmas-tree .xmas-star{position:relative}
+.xmas-tree .xmas-star::before,.xmas-tree .xmas-star::after{
+  content:""; position:absolute; left:50%; pointer-events:none; z-index:2;
+}
+.xmas-tree .xmas-star::before{ /* 별빛 */
+  width:.5em; height:.5em; top:calc(-.075em + var(--star-y, 0em)); transform:translateX(-50%);
+  background:radial-gradient(circle, rgba(255,214,90,.75), rgba(255,214,90,0) 65%);
+  animation:xmas-glow 2.8s ease-in-out infinite;
+}
+.xmas-tree .xmas-star::after{ /* 별 */
+  width:.26em; height:.26em; top:calc(.045em + var(--star-y, 0em)); transform:translateX(-50%);
+  background:linear-gradient(160deg, #fff0b3, #f2c14e 45%, #c8901e);
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  animation:xmas-star 2.8s ease-in-out infinite;
+}
+@keyframes xmas-blink-a{0%,100%{opacity:1}50%{opacity:.04}}
+@keyframes xmas-blink-b{0%,100%{opacity:.04}50%{opacity:1}}
+@keyframes xmas-glow{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes xmas-star{0%,100%{transform:translateX(-50%) rotate(-6deg) scale(1)}50%{transform:translateX(-50%) rotate(6deg) scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.xmas-tree::before,.xmas-tree::after,.xmas-tree .xmas-star::before,.xmas-tree .xmas-star::after{animation:none}}
 @keyframes rise{from{opacity:0;transform:translateY(16px);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
 @keyframes toast{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
 
@@ -113,7 +166,7 @@ h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(72px,11
 
   <div class="wrap head">
     <p class="acro"><b>PR</b>oduct <b>I</b>nformation <b>S</b>ystem <b>M</b>anagement</p>
-    <h1>PRISM</h1>
+    <h1><span class="xmas-tree" data-text="PRISM">PR<span class="xmas-star">I</span>SM</span></h1>
     <p class="lede">올 한 해의 제품 정보를, <strong>따뜻하게 엮어</strong> 전해드립니다.</p>
   </div>
 
