@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PRISM Winter Gold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: winter edition of the ribbon page. Icy-white sky with falling snow; a reindeer-drawn sleigh flies in
+   and weaves the ribbon behind it, then crosses the sky now and then. Wordmark top-left, ruled menu index below. */
+:root{
+  --white:#ffffff;
+  --sky:#eaf1f9;
+  --ink:#0e0e12;
+  --mute:#5f6470;
+  --soft:#9aa0ab;
+  --rule:rgba(14,14,18,.1);
+  --c1:#9e1f33; /* burgundy */
+  --c2:#b98a2e; /* champagne gold */
+  --c3:#1d6b52; /* emerald */
+  --c4:#5e88b0; /* silver blue */
+  --f-display:"Manrope",-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --f-text:"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--white)}
+body{margin:0;color:var(--ink);font-family:var(--f-text);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:1240px;margin-inline:auto;padding-left:max(clamp(16px,4vw,44px),env(safe-area-inset-left,0px));padding-right:max(clamp(16px,4vw,44px),env(safe-area-inset-right,0px))}
+
+.hero{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(180deg,var(--sky) 0%,#f6f9fc 42%,var(--white) 100%)}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:-1;pointer-events:none}
+
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:22px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:.12em;color:var(--ink);text-decoration:none}
+.logo svg{width:22px;height:14px;display:block}
+.chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--f-display);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);background:rgba(255,255,255,.6);border:1px solid var(--rule);border-radius:999px;padding:5px 12px}
+.chip svg{width:11px;height:11px;display:block}
+
+.head{display:grid;gap:16px;padding-block:clamp(36px,8vh,88px) 0}
+.acro{margin:0;font-family:var(--f-display);font-size:14px;font-weight:500;color:var(--soft);animation:rise 1.4s .2s cubic-bezier(.2,.7,.2,1) both}
+.acro b{color:var(--ink);font-weight:700}
+h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(72px,11.5vw,148px);line-height:.9;letter-spacing:-.06em;animation:rise 1.8s .3s cubic-bezier(.2,.7,.2,1) both}
+.lede{margin:0;font-size:clamp(17px,1.7vw,21px);line-height:1.5;color:var(--mute);max-width:24em;word-break:keep-all;text-wrap:balance;animation:rise 1.6s .5s cubic-bezier(.2,.7,.2,1) both}
+.lede strong{color:var(--ink);font-weight:500}
+
+.space{height:clamp(200px,30vh,300px)}
+
+.index{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule)}
+.index>li{min-width:0;animation:rise 1.4s cubic-bezier(.2,.7,.2,1) both}
+.index>li:nth-child(1){animation-delay:2.4s}.index>li:nth-child(2){animation-delay:2.5s}.index>li:nth-child(3){animation-delay:2.6s}.index>li:nth-child(4){animation-delay:2.7s}
+.index>li+li .item{border-left:1px solid var(--rule)}
+.item{position:relative;display:grid;gap:4px;height:100%;padding:26px 24px;color:var(--ink);text-decoration:none;background:rgba(255,255,255,.74);transition:background-color .4s ease}
+.item:hover,.item:focus-visible{background:rgba(255,255,255,.94)}
+.item:focus-visible{outline:2px solid var(--c);outline-offset:-2px}
+.bar-c{display:block;width:28px;height:3px;border-radius:3px;background:var(--c);margin-bottom:14px;transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.item:hover .bar-c,.item:focus-visible .bar-c{width:100%}
+.name{font-size:clamp(19px,1.7vw,22px);font-weight:700;letter-spacing:-.02em;line-height:1.3;word-break:keep-all}
+.en{font-family:var(--f-display);font-size:13px;font-weight:500;color:var(--soft)}
+.desc{font-size:14px;color:var(--mute);line-height:1.5;word-break:keep-all;margin-top:8px}
+.go{position:absolute;top:22px;right:20px;font-family:var(--f-display);font-size:18px;color:var(--soft);transition:transform .4s ease,color .3s ease}
+.item:hover .go,.item:focus-visible .go{color:var(--ink);transform:translateX(4px)}
+
+.hint{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-block:20px 44px;font-size:13px;color:var(--soft);border-top:1px solid var(--rule)}
+.replay{appearance:none;background:transparent;border:1px solid var(--rule);color:var(--mute);font:500 13px/1 var(--f-text);padding:9px 15px;border-radius:999px;cursor:pointer}
+.replay:hover{color:var(--ink);border-color:rgba(0,0,0,.25)}
+.replay:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.greet{margin-left:auto;font-family:var(--f-display);font-weight:500;letter-spacing:.02em;color:var(--mute)}
+.greet b{color:var(--c1);font-weight:700}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;padding-block:20px 26px;border-top:1px solid var(--rule);font-family:var(--f-display);font-size:12px;color:var(--soft)}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);width:max-content;padding:11px 18px;border-radius:999px;background:var(--ink);color:#fff;font-size:14px;text-align:center;animation:toast .35s cubic-bezier(.2,.7,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(16px);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+@keyframes toast{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media (max-width:860px){
+  .index{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .index>li:nth-child(3) .item{border-left:0}
+  .index>li:nth-child(n+3) .item{border-top:1px solid var(--rule)}
+  .greet{margin-left:0;width:100%}
+}
+@media (max-width:520px){
+  .chip{display:none}
+  .space{height:210px}
+  .item{padding:20px 16px}
+  .go{top:18px;right:14px}
+  .desc{font-size:13px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero" id="hero">
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <div class="wrap bar">
+    <a class="logo" href="#" aria-label="PRISM 홈">
+      <svg viewBox="0 0 22 14" aria-hidden="true" fill="none" stroke-width="1.6" stroke-linecap="round">
+        <path d="M1 10 C6 2, 10 12, 21 4" style="stroke:var(--c1)"/>
+        <path d="M1 12 C6 4, 10 13, 21 7" style="stroke:var(--c3)"/>
+        <path d="M1 8 C6 0, 10 10, 21 1.5" style="stroke:var(--c2)"/>
+      </svg>
+      PRISM
+    </a>
+    <span class="chip">
+      <svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M6 .8v10.4M1.5 3.4l9 5.2M1.5 8.6l9-5.2M4.6 1.6 6 3l1.4-1.4M4.6 10.4 6 9l1.4 1.4"/></svg>
+      Winter 2026
+    </span>
+  </div>
+
+  <div class="wrap head">
+    <p class="acro"><b>PR</b>oduct <b>I</b>nformation <b>S</b>ystem <b>M</b>anagement</p>
+    <h1>PRISM</h1>
+    <p class="lede">올 한 해의 제품 정보를, <strong>따뜻하게 엮어</strong> 전해드립니다.</p>
+  </div>
+
+  <div class="space" aria-hidden="true"></div>
+
+  <nav class="wrap" aria-label="PRISM 메뉴">
+    <ul class="index">
+      <li><a class="item" href="#shortcuts" style="--c:var(--c1)" data-i="0" data-to="바로가기로">
+        <span class="bar-c"></span><span class="name">바로가기</span><span class="en">Shortcuts</span>
+        <span class="desc">자주 쓰는 시스템과 문서로 한 번에 이동</span><span class="go" aria-hidden="true">→</span></a></li>
+      <li><a class="item" href="#products" style="--c:var(--c2)" data-i="1" data-to="제품현황으로">
+        <span class="bar-c"></span><span class="name">제품현황</span><span class="en">Products</span>
+        <span class="desc">제품별 상태, 사양, 일정을 한눈에</span><span class="go" aria-hidden="true">→</span></a></li>
+      <li><a class="item" href="#ideas" style="--c:var(--c3)" data-i="2" data-to="아이디어게시판으로">
+        <span class="bar-c"></span><span class="name">아이디어게시판</span><span class="en">Ideas</span>
+        <span class="desc">제안하고, 모으고, 함께 다듬기</span><span class="go" aria-hidden="true">→</span></a></li>
+      <li><a class="item" href="#recipients" style="--c:var(--c4)" data-i="3" data-to="수신처관리로">
+        <span class="bar-c"></span><span class="name">수신처관리</span><span class="en">Recipients</span>
+        <span class="desc">배포와 알림을 받을 사람, 그룹 관리</span><span class="go" aria-hidden="true">→</span></a></li>
+    </ul>
+  </nav>
+
+  <div class="wrap"><div class="hint">
+    <button class="replay" id="replay" type="button">썰매 다시 부르기</button>
+    <span>마우스를 움직이면 리본이 일렁이고, 눈발이 바람을 타요.</span>
+    <span class="greet"><b>Merry Christmas</b> &amp; Happy New Year</span>
+  </div></div>
+</header>
+
+<div class="wrap"><footer class="foot"><span>PRISM · PRoduct Information System Management</span><span>겨울 시즌 랜딩 샘플 · 메뉴 링크는 연결 전</span></footer></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+  const hero = document.getElementById('hero');
+  const canvas = document.getElementById('scene');
+  const ctx = canvas.getContext('2d');
+  const space = document.querySelector('.space');
+  const toast = document.getElementById('toast');
+  const reduceMq = matchMedia('(prefers-reduced-motion: reduce)');
+
+  // ---------- 메뉴: 호버하면 리본의 해당 색 구간만 또렷하게 ----------
+  const boost = [1, 1, 1, 1];
+  let hover = -1, tt = 0;
+  document.querySelectorAll('.item').forEach(el => {
+    const i = +el.dataset.i;
+    el.addEventListener('pointerenter', () => { hover = i; });
+    el.addEventListener('pointerleave', () => { if (hover === i) hover = -1; });
+    el.addEventListener('focus', () => { hover = i; });
+    el.addEventListener('blur', () => { if (hover === i) hover = -1; });
+    el.addEventListener('click', e => {
+      // 샘플용: href가 '#...'인 동안만 이동을 막습니다. 실제 주소로 바꾸면 그대로 이동합니다.
+      if ((el.getAttribute('href') || '').startsWith('#')) {
+        e.preventDefault();
+        toast.textContent = `${el.dataset.to} 이동합니다 · 샘플이라 링크는 아직 비어 있어요`;
+        toast.hidden = false; toast.style.animation = 'none'; void toast.offsetWidth; toast.style.animation = '';
+        clearTimeout(tt); tt = setTimeout(() => { toast.hidden = true; }, 2800);
+      }
+    });
+  });
+
+  // ---------- 리본 색: 버건디 → 샴페인 골드 → 에메랄드 → 실버블루 [hue, sat, light] ----------
+  const STOPS = [[-12, 62, 34], [354, 60, 44], [34, 58, 56], [42, 66, 46], [156, 50, 28], [150, 38, 40], [206, 38, 52], [214, 30, 66]];
+  function threadColor(s, a) {
+    const x = s * (STOPS.length - 1), i = Math.min(STOPS.length - 2, Math.floor(x)), f = x - i;
+    const A = STOPS[i], B = STOPS[i + 1];
+    const h = (A[0] + (B[0] - A[0]) * f + 360) % 360;
+    return `hsla(${h.toFixed(1)},${(A[1] + (B[1] - A[1]) * f).toFixed(1)}%,${(A[2] + (B[2] - A[2]) * f).toFixed(1)}%,${a})`;
+  }
+
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const INK = '#15151b', RED = '#cf2236', GOLD = '#d49a2a', SKIN = '#f3c6a5', SACK = '#1f6e4a';
+
+  let W = 0, H = 0, CY = 0, AMP = 0, MOBILE = false;
+  let flakes = [], sparks = [];
+
+  function resize() {
+    const r = hero.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    W = r.width; H = r.height; MOBILE = W < 560;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const sr = space.getBoundingClientRect();
+    CY = sr.top - r.top + sr.height * .5;
+    AMP = Math.min(260, sr.height * (MOBILE ? .6 : .95));
+    seedSnow();
+  }
+
+  function seedSnow() {
+    const n = Math.round(Math.min(190, W * H / 7000));
+    flakes = Array.from({ length: n }, () => {
+      const d = Math.random();
+      return { x: Math.random() * W, y: Math.random() * H, d, r: .8 + d * d * 3.2, vy: 14 + d * 42, ph: Math.random() * 6.283 };
+    });
+  }
+
+  // 리본 중심선 (썰매도 이 선을 따라 날아요)
+  const ribbonCy = (u, tw) => CY + AMP * .28 * Math.sin(u * Math.PI * 1.35 + tw * .32) + AMP * .1 * Math.sin(u * Math.PI * 4 - tw * .55);
+  const ribbonW = (u, tw) => AMP * Math.sin(u * Math.PI * 1.1 + tw * .2 + .9);
+
+  // ---------- 마우스: 리본이 커서 쪽으로 기울며 일렁이고, 눈발에 바람 ----------
+  const mouse = { x: 0, y: 0, tx: 0, ty: 0, on: 0, onT: 0, energy: 0, lastX: 0, lastY: 0, seen: false, wind: 0 };
+  hero.addEventListener('pointermove', e => {
+    const r = hero.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    if (!mouse.seen) { mouse.x = mouse.lastX = x; mouse.y = mouse.lastY = y; mouse.seen = true; }
+    const dx = x - mouse.lastX, speed = Math.hypot(dx, y - mouse.lastY);
+    mouse.energy = Math.min(1, mouse.energy + speed * .012);
+    mouse.wind = clamp(mouse.wind + dx * .6, -60, 60);
+    mouse.lastX = x; mouse.lastY = y;
+    mouse.tx = x; mouse.ty = y; mouse.onT = 1;
+  });
+  hero.addEventListener('pointerleave', () => { mouse.onT = 0; });
+
+  // ---------- 금박 실루엣 (오른쪽을 보는 기준) ----------
+  // 금박 그라데이션: 하이라이트가 천천히 좌→우로 쓸고 지나가요
+  function gold(t) {
+    const g = ctx.createLinearGradient(-80, -70, 190, 10);
+    const c = ((t * .2) % 1.9) - .45;
+    g.addColorStop(0, '#7a5310');
+    g.addColorStop(clamp(c - .2), '#b07f24');
+    g.addColorStop(clamp(c), '#f7e2a0');
+    g.addColorStop(clamp(c + .2), '#b07f24');
+    g.addColorStop(1, '#86601a');
+    return g;
+  }
+  const IVORY = '#fffaf0', GOLD_LINE = 'rgba(160,112,30,.55)';
+
+  function line(x1, y1, x2, y2, w, s) { ctx.strokeStyle = s; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
+
+  function leg(hx, hy, a1, a2, G, alpha) {
+    const kx = hx + Math.sin(a1) * 12, ky = hy + Math.cos(a1) * 12;
+    const fx = kx + Math.sin(a2) * 12.5, fy = ky + Math.cos(a2) * 12.5;
+    ctx.globalAlpha = alpha;
+    line(hx, hy, kx, ky, 2.6, G);
+    line(kx, ky, fx, fy, 1.4, G);
+    ctx.fillStyle = G; ctx.beginPath(); ctx.ellipse(fx, fy, 1.6, 1.1, a2, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function deer(ox, oy, ph, lead, G, t) {
+    ctx.save(); ctx.translate(ox, oy);
+    const m = .5 + .5 * Math.sin(ph), n = .5 + .5 * Math.sin(ph + Math.PI);
+    // 먼 쪽 다리
+    leg(14, 1, lerp(.45, 1.15, m), lerp(-.8, .8, m), G, .55);
+    leg(-21, 0, lerp(-.55, -1.25, n), lerp(-.15, -1.5, n), G, .55);
+    // 몸통
+    ctx.fillStyle = G;
+    ctx.beginPath();
+    ctx.moveTo(18, -11);
+    ctx.bezierCurveTo(6, -14, -14, -13, -24, -10);
+    ctx.bezierCurveTo(-30, -8, -31, 0, -26, 3);
+    ctx.bezierCurveTo(-16, 6, 4, 6, 16, 4);
+    ctx.bezierCurveTo(22, 3, 25, -2, 24, -6);
+    ctx.closePath(); ctx.fill();
+    // 목
+    ctx.beginPath();
+    ctx.moveTo(13, -10); ctx.bezierCurveTo(19, -16, 25, -24, 29, -29);
+    ctx.lineTo(35, -25); ctx.bezierCurveTo(30, -18, 26, -9, 24, -4); ctx.closePath(); ctx.fill();
+    // 머리
+    ctx.beginPath();
+    ctx.moveTo(29, -30); ctx.bezierCurveTo(33, -33.5, 40, -31.5, 46, -27.5);
+    ctx.bezierCurveTo(48.5, -26.5, 47.5, -23, 44, -23);
+    ctx.bezierCurveTo(40, -22.6, 36, -22, 32.5, -21.5); ctx.closePath(); ctx.fill();
+    // 귀, 꼬리
+    ctx.beginPath(); ctx.moveTo(31.5, -30); ctx.lineTo(26.5, -35); ctx.lineTo(33.5, -31.5); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-27, -7); ctx.lineTo(-33.5, -11.5); ctx.lineTo(-28, -3.5); ctx.fill();
+    // 뿔: 우아하게 뒤로 휘는 곡선
+    ctx.strokeStyle = G; ctx.lineCap = 'round';
+    ctx.lineWidth = 1.4; ctx.beginPath();
+    ctx.moveTo(33, -31.5); ctx.bezierCurveTo(32, -40, 26, -48, 17, -52);
+    ctx.moveTo(31.4, -39); ctx.quadraticCurveTo(35, -42, 37.5, -47);
+    ctx.moveTo(28.4, -44.6); ctx.quadraticCurveTo(31, -49, 32, -54);
+    ctx.moveTo(23, -48.8); ctx.quadraticCurveTo(24, -53, 23.5, -57.5);
+    ctx.stroke();
+    ctx.globalAlpha = .6; ctx.lineWidth = 1.1; ctx.beginPath();
+    ctx.moveTo(30.6, -31.5); ctx.bezierCurveTo(28, -39, 22, -44, 13, -46);
+    ctx.moveTo(25.6, -40); ctx.quadraticCurveTo(28, -44, 28.5, -49);
+    ctx.moveTo(19.5, -43.8); ctx.quadraticCurveTo(20, -48, 18.5, -52);
+    ctx.stroke(); ctx.globalAlpha = 1;
+    // 가까운 쪽 다리
+    leg(18, 2, lerp(.55, 1.3, m), lerp(-.7, .95, m), G, 1);
+    leg(-24, 1, lerp(-.65, -1.35, n), lerp(-.25, -1.6, n), G, 1);
+    // 루비처럼 빛나는 코
+    if (lead) {
+      const pulse = .7 + .3 * Math.sin(t * 4.5);
+      const rg = ctx.createRadialGradient(46.6, -25.2, 0, 46.6, -25.2, 15);
+      rg.addColorStop(0, `rgba(230,40,60,${.5 * pulse})`); rg.addColorStop(1, 'rgba(230,40,60,0)');
+      ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(46.6, -25.2, 15, 0, 6.283); ctx.fill();
+      const ruby = ctx.createRadialGradient(46, -25.8, 0, 46.6, -25.2, 2.6);
+      ruby.addColorStop(0, '#ffd0d6'); ruby.addColorStop(.35, '#ff3550'); ruby.addColorStop(1, '#9a0f22');
+      ctx.fillStyle = ruby; ctx.beginPath(); ctx.arc(46.6, -25.2, 2.4, 0, 6.283); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function ivoryShape(draw) {
+    ctx.fillStyle = IVORY; ctx.strokeStyle = GOLD_LINE; ctx.lineWidth = .9;
+    ctx.beginPath(); draw(); ctx.fill(); ctx.stroke();
+  }
+
+  function sleigh(t) {
+    const G = gold(t), ph = t * 8.5;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    // 고삐 (가는 금사)
+    ctx.globalAlpha = .5;
+    line(-12, -31, 100, -32, .8, G);
+    line(-12, -31, 158, -36, .8, G);
+    ctx.globalAlpha = 1;
+    line(22, -18, 46, -6 + Math.sin(ph) * 1.4, 1.1, G);
+    line(94, -6 + Math.sin(ph) * 1.4, 104, -10 + Math.sin(ph + .9) * 1.4, 1.1, G);
+    // 선물 자루 (아이보리 + 금 리본)
+    ivoryShape(() => { ctx.ellipse(-50, -41, 11, 9.5, -.2, 0, 6.283); });
+    ctx.fillStyle = G; ctx.beginPath(); ctx.ellipse(-53, -51, 3, 2, 0, 0, 6.283); ctx.fill();
+    line(-55, -49, -46, -33, 1.2, G);
+    // 산타
+    ctx.fillStyle = G;
+    ctx.beginPath(); ctx.ellipse(-31, -34, 11.5, 13, 0, 0, 6.283); ctx.fill();
+    line(-25, -37, -13, -31, 4.4, G);
+    ctx.beginPath(); ctx.arc(-12, -31, 2.6, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.arc(-27, -51, 5.6, 0, 6.283); ctx.fill();
+    ivoryShape(() => {
+      ctx.moveTo(-31, -50); ctx.bezierCurveTo(-30, -40, -22, -38, -19.5, -45.5);
+      ctx.bezierCurveTo(-20.5, -50, -24, -51, -27.5, -50); ctx.closePath();
+    });
+    ctx.fillStyle = G; ctx.beginPath();
+    ctx.moveTo(-33, -55); ctx.bezierCurveTo(-30.5, -64, -38, -70, -48, -66.5);
+    ctx.lineTo(-46.5, -64.5); ctx.bezierCurveTo(-38.5, -66.5, -30.5, -62, -21, -55.5); ctx.closePath(); ctx.fill();
+    ivoryShape(() => { ctx.roundRect ? ctx.roundRect(-33.5, -58, 13.5, 3.8, 1.9) : ctx.rect(-33.5, -58, 13.5, 3.8); });
+    ivoryShape(() => { ctx.arc(-48.6, -66, 2.5, 0, 6.283); });
+    // 썰매: 백조 목처럼 말린 앞머리
+    ctx.fillStyle = G; ctx.beginPath();
+    ctx.moveTo(-60, -2);
+    ctx.bezierCurveTo(-68, -16, -66, -36, -56, -40);
+    ctx.bezierCurveTo(-52, -41.5, -49.5, -38, -51, -35);
+    ctx.bezierCurveTo(-48, -26, -40, -21, -26, -21);
+    ctx.lineTo(-6, -21);
+    ctx.bezierCurveTo(6, -21, 12, -30, 20, -34);
+    ctx.bezierCurveTo(26, -37, 30.5, -32, 26.5, -28);
+    ctx.bezierCurveTo(23.5, -25, 20, -27, 21, -29.5);
+    ctx.bezierCurveTo(16, -22, 12, -8, 4, -2);
+    ctx.closePath(); ctx.fill();
+    // 아이보리 덩굴 장식
+    ctx.strokeStyle = 'rgba(255,250,240,.9)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-55, -9); ctx.bezierCurveTo(-46, -15, -38, -4, -29, -10);
+    ctx.bezierCurveTo(-21, -15, -13, -5, -4, -10);
+    ctx.moveTo(-29, -10); ctx.bezierCurveTo(-27, -15, -22, -15, -23, -12);
+    ctx.moveTo(-46, -12); ctx.bezierCurveTo(-48, -17, -52, -15, -50, -13);
+    ctx.stroke();
+    // 썰매 날: 양끝이 말린 곡선
+    ctx.strokeStyle = G; ctx.lineWidth = 1.8; ctx.beginPath();
+    ctx.moveTo(-70, 8); ctx.lineTo(14, 8);
+    ctx.bezierCurveTo(28, 8, 32, -4, 24, -6); ctx.bezierCurveTo(20, -7, 19, -2, 23, -1);
+    ctx.moveTo(-70, 8); ctx.bezierCurveTo(-78, 8, -79, 1, -74.5, .5); ctx.bezierCurveTo(-72, .5, -72, 3, -73.5, 3.4);
+    ctx.stroke();
+    ctx.lineWidth = 1.2;
+    line(-48, -2, -50, 8, 1.2, G); line(-10, -2, -8, 8, 1.2, G);
+    // 순록 두 마리 (앞이 루돌프)
+    deer(70, -8 + Math.sin(ph) * 1.5, ph, false, G, t);
+    deer(128, -12 + Math.sin(ph + .9) * 1.5, ph + .9, true, G, t);
+  }
+
+  // 화면 좌표 (x, y)에 썰매를 놓음: dir = 1 오른쪽, -1 왼쪽
+  function placeSleigh(x, y, ang, s, dir, t) {
+    ctx.save();
+    ctx.translate(x, y); ctx.rotate(ang); ctx.scale(s * dir, s);
+    ctx.translate(-52, 24);
+    sleigh(t);
+    ctx.restore();
+  }
+
+  function emitSparks(x, y, dir, s, dt) {
+    const n = Math.random() < dt * 40 ? 2 : 1;
+    for (let i = 0; i < n; i++) sparks.push({
+      x: x - dir * 60 * s + (Math.random() - .5) * 10 * s, y: y + 8 * s + (Math.random() - .5) * 8 * s,
+      vx: -dir * (10 + Math.random() * 25), vy: 8 + Math.random() * 22,
+      life: 0, max: 1.2 + Math.random() * 1.1, r: (1 + Math.random() * 1.8) * Math.max(.6, s),
+      c: ['#c9a04a', '#f2dfa4', '#a97a24'][Math.floor(Math.random() * 3)]
+    });
+  }
+  function drawSparks(dt) {
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const p = sparks[i];
+      p.life += dt; if (p.life > p.max) { sparks.splice(i, 1); continue; }
+      p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= .985;
+      const a = Math.sin(Math.PI * p.life / p.max), r = p.r * (.6 + .4 * a);
+      ctx.globalAlpha = a * .9; ctx.fillStyle = p.c;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y - r * 2); ctx.lineTo(p.x + r * .5, p.y - r * .5); ctx.lineTo(p.x + r * 2, p.y);
+      ctx.lineTo(p.x + r * .5, p.y + r * .5); ctx.lineTo(p.x, p.y + r * 2); ctx.lineTo(p.x - r * .5, p.y + r * .5);
+      ctx.lineTo(p.x - r * 2, p.y); ctx.lineTo(p.x - r * .5, p.y - r * .5); ctx.closePath(); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawSnow(near, dt, t, reduce) {
+    const wind = mouse.wind;
+    for (const f of flakes) {
+      if ((f.d >= .62) !== near) continue;
+      if (!reduce) {
+        f.y += f.vy * dt;
+        f.x += (Math.sin(t * .6 + f.ph) * 10 + wind * .5) * (.3 + f.d) * dt;
+        if (f.y > H + 6) { f.y = -6; f.x = Math.random() * W; }
+        if (f.x < -6) f.x = W + 6; else if (f.x > W + 6) f.x = -6;
+      }
+      const a = .28 + f.d * .5;
+      if (f.r > 2.8) {
+        const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 1.6);
+        g.addColorStop(0, `rgba(150,172,202,${a})`); g.addColorStop(1, 'rgba(150,172,202,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * 1.6, 0, 6.283); ctx.fill();
+      } else {
+        ctx.fillStyle = `rgba(150,172,202,${a})`;
+        ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.283); ctx.fill();
+      }
+    }
+  }
+
+  // ---------- 타임라인 ----------
+  const INTRO_START = .5, INTRO_DUR = 5.2;      // 썰매가 리본을 짜며 지나가는 시간
+  const FLY_FIRST = INTRO_START + INTRO_DUR + 5, FLY_EVERY = 16, FLY_DUR = 7.5;
+  let t0 = performance.now(), last = t0;
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const reduce = reduceMq.matches;
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    const t = reduce ? 6 : (now - t0) / 1000;
+    const tw = reduce ? 0 : t;
+
+    mouse.x += (mouse.tx - mouse.x) * .12; mouse.y += (mouse.ty - mouse.y) * .12;
+    mouse.on += (mouse.onT - mouse.on) * .05; mouse.energy *= .965; mouse.wind *= .97;
+    const mOn = reduce ? 0 : mouse.on, mE = reduce ? 0 : mouse.energy;
+    const SIG2 = 2 * Math.pow(Math.max(110, W * .1), 2);
+    for (let i = 0; i < 4; i++) {
+      const target = hover < 0 ? 1 : (i === hover ? 2 : .22);
+      boost[i] += (target - boost[i]) * (reduce ? 1 : .08);
+    }
+
+    ctx.clearRect(0, 0, W, H);
+    drawSnow(false, dt, t, reduce);
+
+    // 인트로: 썰매 위치와 리본이 그려진 끝
+    const sScale = MOBILE ? .6 : 1.2;
+    const pIntro = reduce ? 2 : clamp((t - INTRO_START) / INTRO_DUR, 0, 2);
+    const introX = p => -260 * sScale + (W + 520 * sScale) * p;
+    const introOn = !reduce && pIntro > 0 && pIntro < 1;
+    const tailX = introX(Math.min(pIntro, 1.2)) - 70 * sScale;
+    const x0 = -20, x1 = reduce || pIntro >= 1 ? W + 20 : Math.max(x0, tailX);
+
+    // 리본
+    const N = MOBILE ? 44 : 64, step = MOBILE ? 8 : 10;
+    for (let n = 0; n < N; n++) {
+      const s = n / (N - 1), q = Math.min(3, Math.floor(s * 4)), k = boost[q];
+      ctx.strokeStyle = threadColor(s, Math.min(.95, .46 * k));
+      ctx.lineWidth = Math.min(2, .9 * (k > 1 ? 1 + (k - 1) * .6 : 1));
+      ctx.beginPath();
+      for (let x = x0; x <= x1 + step; x += step) {
+        const xx = Math.min(x, x1), u = xx / W;
+        const cy = ribbonCy(u, tw);
+        let w = ribbonW(u, tw);
+        if (introOn) w *= Math.pow(clamp((x1 - xx) / 260), .7); // 썰매 꼬리에서 리본이 풀려나오듯 가늘게
+        let y = cy + (s - .5) * w + Math.sin(u * 11 + s * 5 + tw * .8) * 2.2;
+        if (mOn > .001) {
+          const dx = xx - mouse.x, infl = Math.exp(-(dx * dx) / SIG2) * mOn;
+          if (infl > .002) {
+            const lean = clamp((mouse.y - cy) / (AMP * 1.6), -1, 1) * AMP * .2;
+            const ripple = Math.sin(dx * .045 - tw * 6 + s * 2.6) * (3 + 16 * mE);
+            y += infl * (lean + ripple) + infl * (s - .5) * w * .12;
+          }
+        }
+        if (x === x0) ctx.moveTo(xx, y); else ctx.lineTo(xx, y);
+        if (xx >= x1) break;
+      }
+      ctx.stroke();
+    }
+
+    // 썰매
+    if (reduce) {
+      placeSleigh(W * (MOBILE ? .7 : .78), H * .13, -.06, sScale * .7, 1, 0);
+    } else if (introOn) {
+      const p = pIntro, e = .002;
+      const ax = introX(p), ay = ribbonCy(ax / W, tw) - 14 * sScale;
+      const bx = introX(p + e), by = ribbonCy(bx / W, tw) - 14 * sScale;
+      const ang = clamp(Math.atan2(by - ay, bx - ax), -.4, .4);
+      emitSparks(ax, ay, 1, sScale, dt);
+      placeSleigh(ax, ay, ang, sScale, 1, t);
+    } else if (t > FLY_FIRST) {
+      const k = Math.floor((t - FLY_FIRST) / FLY_EVERY), local = (t - FLY_FIRST) - k * FLY_EVERY;
+      if (local < FLY_DUR) {
+        const dir = k % 2 === 0 ? -1 : 1, s = sScale * .55, p = local / FLY_DUR;
+        const path = q => {
+          const x = dir > 0 ? -200 + (W + 400) * q : W + 200 - (W + 400) * q;
+          return [x, H * (MOBILE ? .09 : .11) + H * .045 * Math.sin(q * Math.PI * 1.6 + k)];
+        };
+        const [ax, ay] = path(p), [bx, by] = path(p + .002);
+        const ang = clamp(Math.atan2((by - ay) * dir, (bx - ax) * dir), -.35, .35);
+        emitSparks(ax, ay, dir, s, dt);
+        placeSleigh(ax, ay, ang, s, dir, t);
+      }
+    }
+    drawSparks(reduce ? 0 : dt);
+    drawSnow(true, dt, t, reduce);
+  }
+
+  document.getElementById('replay').addEventListener('click', () => {
+    t0 = performance.now(); sparks = [];
+    document.querySelectorAll('.acro,h1,.lede,.index>li').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+  });
+  resize();
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(hero); else addEventListener('resize', resize);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
